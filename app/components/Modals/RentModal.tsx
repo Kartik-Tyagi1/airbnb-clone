@@ -3,9 +3,11 @@
 import { useMemo, useState } from "react";
 
 import useRentModal from "@/app/hooks/useRentModal";
+import dynamic from "next/dynamic";
 import { FieldValues, useForm } from "react-hook-form";
 import Heading from "../Heading";
 import CategoryInput from "../inputs/CategoryInput";
+import CountrySelect from "../inputs/CountrySelect";
 import { categories } from "../navbar/Categories";
 import Modal from "./Modal";
 
@@ -48,6 +50,17 @@ const RentModal = () => {
 
   // Since this will be set in another :view" we need to watch for its change
   const category = watch("category");
+  const location = watch("location");
+
+  // ReRender the map each time the location changes
+  // Gotta do it like this because React leaflet is not a fully supported library
+  const Map = useMemo(
+    () =>
+      dynamic(() => import("../Map"), {
+        ssr: false,
+      }),
+    [location]
+  );
 
   // Add custom behavior to setValue
   const setCustomValue = (id: string, value: any) => {
@@ -81,6 +94,7 @@ const RentModal = () => {
     return "Back";
   }, [step]);
 
+  // STEP 1 BODY - Category of Listing Rental
   let bodyContent = (
     <div className="flex flex-col gap-8">
       <Heading
@@ -102,12 +116,29 @@ const RentModal = () => {
     </div>
   );
 
+  // STEP 2 BODY - Location of Listing Rental
+  if (step == STEPS.LOCATION) {
+    bodyContent = (
+      <div className="flex flex-col gap-8">
+        <Heading
+          title="Where is you place located?"
+          subtitle="Help guests find you!"
+        />
+        <CountrySelect
+          value={location}
+          onChange={(value) => setCustomValue("location", value)}
+        />
+        <Map center={location?.latlng} />
+      </div>
+    );
+  }
+
   return (
     <Modal
       title="Airbnb your home!"
       isOpen={rentModal.isOpen}
       onClose={rentModal.onClose}
-      onSubmit={rentModal.onClose}
+      onSubmit={onMoveForwardStep}
       actionLabel={actionLabel}
       secondaryActionLabel={secondaryActionLabel}
       secondaryAction={step == STEPS.CATEGORY ? undefined : onMoveBackStep}
