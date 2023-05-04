@@ -1,0 +1,6 @@
+- These files are used to directly communicate with the database
+  from the server components. 
+
+- In order for client components to communicate with the database
+  either they use an api call or we pass the data from the server 
+  component to the client component. 
