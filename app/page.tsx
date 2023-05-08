@@ -1,3 +1,5 @@
+export const dynamic = "auto"; // TO FIX DEPLOYMENT ISSUE
+
 import getCurrentUser from "./actions/getCurrentUser";
 import getListings, { IListingsParams } from "./actions/getListings";
 import ClientOnly from "./components/ClientOnly";
